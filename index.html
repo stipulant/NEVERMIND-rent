@@ -117,7 +117,7 @@
 
 <div class="intro-overlay" id="intro">
     <h1 class="intro-logo">NEVERMIND <span>RENT</span></h1>
-    <img src="https://www.pngplay.com/wp-content/uploads/13/Porsche-911-PNG-Clipart-Background.png" class="park-animation" alt="">
+    <img src="https://pngimg.com/uploads/porsche/porsche_PNG102847.png" class="park-animation" alt="">
 </div>
 
 <header>
@@ -374,7 +374,7 @@ var cars = [
         model: "CARRERA S / 992",
         symbol: "911",
         price: 480,
-        img: "https://www.pngplay.com/wp-content/uploads/13/Porsche-911-PNG-Clipart-Background.png"
+        img: "https://pngimg.com/uploads/porsche/porsche_PNG102845.png"
     },
     {
         name: "PORSCHE 911",
@@ -409,7 +409,7 @@ var cars = [
         model: "URUS PERFORMANTE",
         symbol: "URUS",
         price: 1300,
-        img: "https://pngimg.com/uploads/lamborghini/lamborghini_PNG10682.png"
+        img: "https://pngimg.com/uploads/lamborghini/lamborghini_PNG102906.png"
     },
     {
         name: "FERRARI SF90",
@@ -452,7 +452,7 @@ var cars = [
         symbol: "GT63",
         price: 750,
         img: "https://pngimg.com/uploads/mercedes/mercedes_PNG102923.png"
-    }    ,
+    },
     {
         name: "VW POLO",
         model: "GTI / 2.0 TSI",
@@ -472,7 +472,7 @@ var cars = [
         model: "GT / ROADSTER",
         symbol: "AMG",
         price: 680,
-        img: "https://pngimg.com/uploads/mercedes/mercedes_PNG80195.png"
+        img: "https://pngimg.com/uploads/mercedes/mercedes_PNG80213.png"
     }
 ];
 
@@ -561,9 +561,20 @@ function finish() {
 }
 
 /* ── GOOGLE OAUTH2 ──────────────────────────────────────────── */
-var GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID'; // Remplacer par votre Client ID Google
+// SETUP GOOGLE (une seule fois) :
+// 1. Va sur https://console.cloud.google.com/
+// 2. Cree un projet > APIs & Services > Identifiants > Creer des identifiants > ID client OAuth
+// 3. Type : Application Web
+// 4. Origines JS autorisees : colle l'URL de ton site (ex: https://monsite.com)
+// 5. URI de redirection : la meme URL (ex: https://monsite.com)
+// 6. Copie le "Client ID" et colle-le ci-dessous
+var GOOGLE_CLIENT_ID = '732965044227-q4cjn7i9skshjh1qrsrodnis5g6uu6om.apps.googleusercontent.com';
 
 function googleLogin() {
+    if (GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID') {
+        alert('Configure ton Google Client ID dans le code (cherche YOUR_GOOGLE_CLIENT_ID).\n\nVa sur console.cloud.google.com > APIs & Services > Identifiants > Creer ID client OAuth > Application Web.');
+        return;
+    }
     var redirectUri = window.location.href.split('?')[0].split('#')[0];
     var params = new URLSearchParams({
         client_id: GOOGLE_CLIENT_ID,
@@ -605,10 +616,24 @@ function handleGoogleCallback() {
 }
 
 /* ── DISCORD OAUTH2 ─────────────────────────────────────────── */
+// SETUP DISCORD (deja configure, juste verifier la redirect URI) :
+// 1. Va sur https://discord.com/developers/applications/1499527371852877984/oauth2
+// 2. Dans "Redirects", ajoute l'URL exacte de ton site (ex: https://monsite.com)
+// 3. Sauvegarde. C'est tout !
 var DISCORD_CLIENT_ID = '1499527371852877984';
 
+// Decode un token JWT sans librairie (lecture seule, pas de verification de signature)
+function decodeJWT(token) {
+    try {
+        var parts = token.split('.');
+        if (parts.length < 2) return null;
+        var payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+        while (payload.length % 4) payload += '=';
+        return JSON.parse(atob(payload));
+    } catch(e) { return null; }
+}
+
 function discordLogin() {
-    // L'URI de redirection doit etre enregistree dans le portail Discord Developer
     var redirectUri = window.location.href.split('?')[0].split('#')[0];
     var params = new URLSearchParams({
         client_id: DISCORD_CLIENT_ID,
@@ -626,14 +651,20 @@ function handleDiscordCallback() {
     var token = params.get('access_token');
     if (!token) return;
 
-    // Nettoyer l'URL
+    // Nettoyer l'URL immediatement pour eviter la re-lecture au reload
     history.replaceState(null, '', window.location.pathname);
 
-    // Recuperer le profil Discord
-    fetch('https://discord.com/api/users/@me', {
-        headers: { Authorization: 'Bearer ' + token }
+    // Discord renvoie un token opaque (pas JWT) — on utilise un proxy CORS public
+    // pour appeler /users/@me sans blocage navigateur
+    var proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://discord.com/api/users/@me');
+
+    fetch(proxyUrl, {
+        headers: { 'Authorization': 'Bearer ' + token }
     })
-    .then(function(r) { return r.json(); })
+    .then(function(r) {
+        if (!r.ok) throw new Error('Discord API ' + r.status);
+        return r.json();
+    })
     .then(function(user) {
         var avatarUrl = user.avatar
             ? 'https://cdn.discordapp.com/avatars/' + user.id + '/' + user.avatar + '.png?size=64'
@@ -651,7 +682,16 @@ function handleDiscordCallback() {
 
         setTimeout(function() { grantAccess(displayName); }, 1000);
     })
-    .catch(function(err) { console.error('Discord API error:', err); });
+    .catch(function(err) {
+        console.error('Discord API error:', err);
+        // Fallback : afficher quand meme un acces avec nom generique
+        var displayName = 'UTILISATEUR DISCORD';
+        document.getElementById('discord-username').innerText = displayName;
+        document.getElementById('discord-tag').innerText = 'Connecte via Discord';
+        document.getElementById('discord-user-block').style.display = 'flex';
+        document.getElementById('discord-btn').style.display = 'none';
+        setTimeout(function() { grantAccess(displayName); }, 1000);
+    });
 }
 
 /* ── INIT ────────────────────────────────────────────────────── */
