@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEVERMIND RENT | Experience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #c5a059;
+            --gold-light: #d4b572;
+            --black: #050505;
+            --dark: #0a0a0a;
+            --white: #ffffff;
+            --transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--black); color: var(--white); font-family: 'Montserrat', sans-serif; overflow: hidden; }
+
+        /* INTRO */
+        .intro-overlay {
+            position: fixed; inset: 0; background: #000; z-index: 10000;
+            display: flex; align-items: center; justify-content: center;
+            animation: fadeOverlay 1s forwards 4s;
+        }
+        .intro-logo {
+            font-size: 3rem; font-weight: 900; letter-spacing: 15px; opacity: 0;
+            animation: fadeInOut 3s forwards 0.5s; text-transform: uppercase; position: relative; z-index: 1;
+        }
+        .intro-logo span { color: var(--gold); }
+        .park-animation {
+            width: 60%; max-width: 500px; position: absolute; left: -1000px;
+            filter: brightness(0.9);
+            animation: carMove 3.5s cubic-bezier(0.15, 1, 0.3, 1) forwards 0.5s;
+            z-index: 3;
+        }
+        @keyframes fadeInOut { 0%,100%{opacity:0;transform:scale(0.9)} 40%,60%{opacity:1;transform:scale(1)} }
+        @keyframes carMove { 0%{left:-1000px} 100%{left:50%;transform:translateX(-50%)} }
+        @keyframes fadeOverlay { to{opacity:0;visibility:hidden} }
+
+        /* NAV */
+        header { padding: 28px 5%; position: fixed; width: 100%; top: 0; z-index: 999; background: linear-gradient(to bottom, rgba(0,0,0,0.92), transparent); }
+        .header-container { display: flex; justify-content: space-between; align-items: center; max-width: 1600px; margin: 0 auto; }
+        .logo { font-weight: 900; letter-spacing: 5px; font-size: 1.2rem; cursor: pointer; text-decoration: none; color: white; text-transform: uppercase; }
+        .logo span { color: var(--gold); }
+        .nav-links { display: flex; list-style: none; gap: 30px; }
+        .nav-links a { color: white; text-decoration: none; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; transition: 0.3s; cursor: pointer; }
+        .nav-links a:hover { color: var(--gold); }
+
+        /* SECTIONS */
+        .section { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: var(--transition); display: flex; align-items: center; justify-content: center; padding: 0 5%; }
+        .section.active { opacity: 1; visibility: visible; }
+
+        /* HISTOIRE */
+        .scene { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+        .porsche-img { width: 320px; filter: brightness(0.85); }
+        .banner {
+            background: rgba(197,160,89,0.9); color: black; padding: 20px 60px;
+            font-weight: 900; letter-spacing: 2px; font-size: 0.78rem;
+            clip-path: polygon(0% 0%,100% 0%,95% 100%,5% 100%);
+            animation: wave 2s infinite alternate ease-in-out;
+            text-align: center; width: 600px; max-width: 90%;
+        }
+        .banner.dark { background: rgba(18,18,18,0.97); color: var(--gold); border: 1px solid rgba(197,160,89,0.2); animation-direction: alternate-reverse; }
+        .banner.subtle { background: rgba(197,160,89,0.07); color: white; border: 1px solid rgba(197,160,89,0.25); animation-direction: alternate-reverse; }
+        @keyframes wave { from{transform:translateY(-7px) rotate(0.7deg)} to{transform:translateY(0) rotate(-0.7deg)} }
+
+        /* UI */
+        .btn-action { padding: 18px 28px; background: var(--gold); border: none; color: black; font-weight: 900; cursor: pointer; letter-spacing: 2px; text-transform: uppercase; transition: 0.3s; font-family: 'Montserrat', sans-serif; font-size: 0.72rem; }
+        .btn-action:hover { background: var(--gold-light); }
+
+        /* FLEET */
+        .fleet-wrapper { display: flex; align-items: center; width: 100%; max-width: 1300px; gap: 70px; }
+
+        .car-visual { flex: 1.3; position: relative; height: 390px; display: flex; align-items: center; justify-content: center; }
+        .car-bg-text { position: absolute; font-size: 9rem; font-weight: 900; color: rgba(197,160,89,0.04); letter-spacing: -5px; white-space: nowrap; user-select: none; z-index: 0; }
+        .car-image-container { position: relative; z-index: 2; width: 100%; display: flex; align-items: center; justify-content: center; transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.23,1,0.32,1); }
+        .car-image-container.changing { opacity: 0; transform: translateX(35px) scale(0.96); }
+        .car-img { width: 100%; max-width: 580px; max-height: 300px; object-fit: contain; filter: brightness(0.95); transition: transform 0.4s ease, filter 0.4s ease; }
+        .car-img:hover { filter: brightness(1.05); transform: scale(1.02) translateY(-4px); }
+
+        .car-info { flex: 1; display: flex; flex-direction: column; }
+        #car-name { font-size: 2.8rem; font-weight: 900; letter-spacing: 3px; margin-bottom: 4px; line-height: 1; }
+        #car-model { font-size: 0.72rem; font-weight: 300; color: rgba(255,255,255,0.28); letter-spacing: 4px; margin-bottom: 28px; text-transform: uppercase; }
+        .price-block { margin-bottom: 28px; }
+        .price-num { font-size: 3.5rem; font-weight: 900; }
+        .price-num .euro { color: rgba(255,255,255,0.16); }
+        .price-unit { font-size: 0.58rem; color: rgba(255,255,255,0.22); letter-spacing: 2px; margin-top: 4px; }
+        .car-counter { font-size: 0.52rem; letter-spacing: 3px; color: rgba(255,255,255,0.16); margin-bottom: 20px; }
+        .nav-btns { display: flex; gap: 10px; align-items: center; }
+        .btn-nav { width: 48px; height: 48px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white; font-size: 1.1rem; cursor: pointer; transition: 0.3s; font-family: 'Montserrat', sans-serif; }
+        .btn-nav:hover { border-color: var(--gold); color: var(--gold); }
+        .progress-dots { display: flex; gap: 7px; margin-top: 22px; flex-wrap: wrap; }
+        .dot { width: 18px; height: 2px; background: rgba(255,255,255,0.12); transition: 0.3s; cursor: pointer; }
+        .dot.active { background: var(--gold); width: 36px; }
+
+        /* MODAL */
+        input { background: #000; border: 1px solid #252525; padding: 14px 16px; color: white; width: 100%; margin-bottom: 14px; font-family: 'Montserrat', sans-serif; font-size: 0.78rem; outline: none; transition: 0.2s; }
+        input:focus { border-color: var(--gold); }
+        .modal-box { background: #070707; border: 1px solid rgba(197,160,89,0.22); padding: 44px; width: 100%; max-width: 430px; }
+
+        /* DISCORD */
+        .google-btn { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 16px 28px; background: #fff; border: none; color: #1a1a1a; font-weight: 900; cursor: pointer; letter-spacing: 2px; text-transform: uppercase; transition: 0.3s; font-family: 'Montserrat', sans-serif; font-size: 0.72rem; width: 100%; margin-bottom: 4px; }
+        .google-btn:hover { background: #f0f0f0; }
+        .discord-btn { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 16px 28px; background: #5865F2; border: none; color: white; font-weight: 900; cursor: pointer; letter-spacing: 2px; text-transform: uppercase; transition: 0.3s; font-family: 'Montserrat', sans-serif; font-size: 0.72rem; width: 100%; margin-bottom: 4px; }
+        .discord-btn:hover { background: #4752C4; }
+        .discord-user { display: none; align-items: center; gap: 14px; padding: 14px 16px; background: rgba(88,101,242,0.08); border: 1px solid rgba(88,101,242,0.25); margin-bottom: 16px; }
+        .discord-avatar { width: 40px; height: 40px; border-radius: 50%; }
+        .discord-name { font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; }
+        .discord-tag { font-size: 0.52rem; color: rgba(255,255,255,0.35); letter-spacing: 1px; margin-top: 2px; }
+        .divider { display: flex; align-items: center; gap: 14px; margin: 20px 0; color: rgba(255,255,255,0.18); font-size: 0.55rem; letter-spacing: 2px; }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.07); }
+    </style>
+</head>
+<body>
+
+<div class="intro-overlay" id="intro">
+    <h1 class="intro-logo">NEVERMIND <span>RENT</span></h1>
+    <img src="https://www.pngplay.com/wp-content/uploads/13/Porsche-911-PNG-Clipart-Background.png" class="park-animation" alt="">
+</div>
+
+<header>
+    <div class="header-container">
+        <a href="#" onclick="showSection('home')" class="logo">NEVERMIND <span>RENT</span></a>
+        <ul class="nav-links">
+            <li><a onclick="showSection('fleet')">Nos Vehicules</a></li>
+            <li><a onclick="showSection('history')">Histoire</a></li>
+            <li><a onclick="showSection('contact')">Contact</a></li>
+            <li><a onclick="showSection('login')" id="login-link" style="color:var(--gold)">Connexion</a></li>
+        </ul>
+    </div>
+</header>
+
+<!-- HOME -->
+<section id="home" class="section active">
+    <div style="text-align:center">
+        <h1 style="font-size:5rem;font-weight:900;line-height:0.9;margin-bottom:36px">NEVERMIND<br><span style="color:var(--gold)">RENT</span></h1>
+        <button class="btn-action" style="padding:20px 70px" onclick="showSection('fleet')">DECOUVRIR NOS OFFRES</button>
+    </div>
+</section>
+
+<!-- HISTOIRE -->
+<section id="history" class="section">
+    <div class="history-container">
+        <div class="history-header">
+            <p class="history-eyebrow">NEVERMIND RENT</p>
+            <h2 class="history-title">L'<span style="color:var(--gold)">Histoire</span></h2>
+            <p class="history-sub">De l'ombre de Lyon aux routes d'exception.</p>
+        </div>
+        <div class="timeline">
+            <div class="tl-line"><div class="tl-progress" id="tl-progress"></div></div>
+            <div class="tl-items">
+                <div class="tl-item" data-delay="0">
+                    <div class="tl-dot"></div>
+                    <div class="tl-year">2019</div>
+                    <div class="tl-card">
+                        <div class="tl-tag">FONDATION</div>
+                        <div class="tl-card-title">Né dans l'ombre</div>
+                        <div class="tl-card-text">Créé à Lyon par deux passionnés de mécanique. Une seule voiture, une vision : offrir l'inaccessible.</div>
+                    </div>
+                </div>
+                <div class="tl-item" data-delay="1">
+                    <div class="tl-dot"></div>
+                    <div class="tl-year">2021</div>
+                    <div class="tl-card">
+                        <div class="tl-tag">EXPANSION</div>
+                        <div class="tl-card-title">Paris & Côte d'Azur</div>
+                        <div class="tl-card-text">La flotte passe à 4 véhicules. Premiers dépôts à Paris et Saint-Tropez. Le bouche-à-oreille commence.</div>
+                    </div>
+                </div>
+                <div class="tl-item" data-delay="2">
+                    <div class="tl-dot"></div>
+                    <div class="tl-year">2023</div>
+                    <div class="tl-card">
+                        <div class="tl-tag">FLOTTE</div>
+                        <div class="tl-card-title">9 machines d'exception</div>
+                        <div class="tl-card-text">Ferrari, Lamborghini, Porsche GT3. Chaque modèle choisi pour ses sensations, pas pour sa cote.</div>
+                    </div>
+                </div>
+                <div class="tl-item" data-delay="3">
+                    <div class="tl-dot"></div>
+                    <div class="tl-year">2025</div>
+                    <div class="tl-card">
+                        <div class="tl-tag">RECORD</div>
+                        <div class="tl-card-title">+500 locations validées</div>
+                        <div class="tl-card-text">Zéro publicité. Zéro réseau social. Cinq cents clients conquis uniquement par recommandation.</div>
+                    </div>
+                </div>
+                <div class="tl-item" data-delay="4">
+                    <div class="tl-dot tl-dot--now"></div>
+                    <div class="tl-year tl-year--now">2026</div>
+                    <div class="tl-card tl-card--now">
+                        <div class="tl-tag tl-tag--gold">AUJOURD'HUI</div>
+                        <div class="tl-card-title">Connu des initiés</div>
+                        <div class="tl-card-text">Nevermind Rent n'existe pas pour tout le monde. Seulement pour ceux qui savent où chercher.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.history-container{width:100%;max-width:1100px;display:flex;flex-direction:column;gap:52px}
+.history-header{text-align:center}
+.history-eyebrow{font-size:0.58rem;letter-spacing:6px;color:rgba(255,255,255,0.22);text-transform:uppercase;margin-bottom:14px}
+.history-title{font-size:3.5rem;font-weight:900;line-height:1;margin-bottom:14px}
+.history-sub{font-size:0.68rem;letter-spacing:3px;color:rgba(255,255,255,0.3);text-transform:uppercase}
+.timeline{position:relative;width:100%}
+.tl-line{position:absolute;top:5px;left:5%;right:5%;height:1px;background:rgba(255,255,255,0.07);z-index:0}
+.tl-progress{height:100%;background:var(--gold);width:0%;transition:width 1.4s cubic-bezier(0.23,1,0.32,1)}
+.tl-items{display:flex;justify-content:space-between;position:relative;padding-top:0}
+.tl-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:16px;opacity:0;transform:translateY(18px);transition:opacity 0.55s ease,transform 0.55s ease}
+.tl-item.vis{opacity:1;transform:translateY(0)}
+.tl-dot{width:11px;height:11px;border-radius:50%;background:#111;border:1px solid rgba(197,160,89,0.3);z-index:2;flex-shrink:0;transition:background 0.4s,border-color 0.4s}
+.tl-item.vis .tl-dot{background:rgba(197,160,89,0.45);border-color:var(--gold)}
+.tl-dot--now{background:var(--gold)!important;border-color:var(--gold)!important;box-shadow:0 0 0 5px rgba(197,160,89,0.12)}
+.tl-year{font-size:0.62rem;font-weight:700;letter-spacing:3px;color:rgba(197,160,89,0.7)}
+.tl-year--now{color:var(--gold)}
+.tl-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);padding:20px 16px;width:100%;height:180px;display:flex;flex-direction:column;transition:border-color 0.3s}
+.tl-card:hover{border-color:rgba(197,160,89,0.3)}
+.tl-card--now{border-color:rgba(197,160,89,0.35);background:rgba(255,255,255,0.04)}
+.tl-tag{font-size:0.47rem;letter-spacing:3px;color:rgba(255,255,255,0.22);margin-bottom:10px;text-transform:uppercase}
+.tl-tag--gold{color:var(--gold)}
+.tl-card-title{font-size:0.8rem;font-weight:700;letter-spacing:1px;margin-bottom:10px;color:white}
+.tl-card-text{font-size:0.67rem;line-height:1.75;color:rgba(255,255,255,0.36)}
+</style>
+
+<script>
+(function(){
+    var section=document.getElementById('history');
+    var items=section.querySelectorAll('.tl-item');
+    var progress=document.getElementById('tl-progress');
+    var on=false;
+    function run(){
+        if(on)return;on=true;
+        setTimeout(function(){progress.style.width='100%'},150);
+        items.forEach(function(el,i){setTimeout(function(){el.classList.add('vis')},200+i*180)});
+    }
+    function reset(){
+        on=false;progress.style.transition='none';progress.style.width='0%';
+        items.forEach(function(el){el.classList.remove('vis')});
+        setTimeout(function(){progress.style.transition='width 1.4s cubic-bezier(0.23,1,0.32,1)'},30);
+    }
+    new MutationObserver(function(){
+        section.classList.contains('active')?run():reset();
+    }).observe(section,{attributes:true,attributeFilter:['class']});
+    if(section.classList.contains('active'))run();
+})();
+</script>
+
+<!-- FLEET -->
+<section id="fleet" class="section">
+    <div class="fleet-wrapper">
+        <div style="flex:1.3;display:flex;flex-direction:column">
+            <div class="car-visual">
+                <div class="car-bg-text" id="bg-symbol">GT3</div>
+                <div class="car-image-container" id="carImgContainer">
+                    <img id="car-img" class="car-img" src="" alt="Vehicle">
+                </div>
+            </div>
+        </div>
+        <div class="car-info">
+            <h2 id="car-name">&#8212;</h2>
+            <p id="car-model">&#8212;</p>
+            <div class="price-block">
+                <div class="price-num"><span id="total-price">&#8212;</span><span class="euro">&#8364;</span></div>
+                <div class="price-unit">PAR JOUR &middot; ASSURANCE INCLUSE</div>
+            </div>
+            <div class="car-counter" id="car-counter">01 / 17</div>
+            <div class="nav-btns">
+                <button class="btn-nav" onclick="slide(-1)">&#8592;</button>
+                <button class="btn-nav" onclick="slide(1)">&#8594;</button>
+                <button id="pay-btn" class="btn-action" style="display:none;flex:1" onclick="showSection('pay')">RESERVER</button>
+            </div>
+            <div class="progress-dots" id="progress-dots"></div>
+        </div>
+    </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="section">
+    <div class="scene">
+        <div class="banner">SUPPORT-NEVERMIND@GMAIL.COM</div>
+        <img src="https://pngimg.com/uploads/porsche/porsche_PNG102847.png" class="porsche-img" alt="Porsche GT3">
+        <h2 style="letter-spacing:10px;font-size:1rem;margin-top:10px">CONTACTEZ NEVERMIND RENT</h2>
+    </div>
+</section>
+
+<!-- LOGIN -->
+<section id="login" class="section">
+    <div class="modal-box" style="text-align:center">
+        <h2 style="letter-spacing:5px;margin-bottom:6px;font-size:1rem">ACCES NEVERMIND</h2>
+        <p style="font-size:0.58rem;color:rgba(255,255,255,0.22);letter-spacing:2px;margin-bottom:26px">IDENTIFICATION REQUISE</p>
+
+        <!-- Google user block (shown after login) -->
+        <div class="discord-user" id="google-user-block" style="display:none">
+            <img class="discord-avatar" id="google-avatar" src="" alt="">
+            <div style="text-align:left">
+                <div class="discord-name" id="google-username">&#8212;</div>
+                <div class="discord-tag" id="google-email">GOOGLE</div>
+            </div>
+        </div>
+
+        <!-- Discord user block (shown after login) -->
+        <div class="discord-user" id="discord-user-block">
+            <img class="discord-avatar" id="discord-avatar" src="" alt="">
+            <div style="text-align:left">
+                <div class="discord-name" id="discord-username">&#8212;</div>
+                <div class="discord-tag" id="discord-tag">DISCORD</div>
+            </div>
+        </div>
+
+        <!-- Google Sign-In -->
+        <button class="google-btn" id="google-btn" onclick="googleLogin()">
+            <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                <path fill="none" d="M0 0h48v48H0z"/>
+            </svg>
+            CONNEXION GOOGLE
+        </button>
+
+        <div style="margin:16px 0 4px;border-top:1px solid rgba(255,255,255,0.06)"></div>
+
+        <!-- Discord Sign-In -->
+        <button class="discord-btn" id="discord-btn" onclick="discordLogin()" style="margin-top:12px">
+            <svg width="20" height="15" viewBox="0 0 71 55" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M60.1 4.9A58.6 58.6 0 0 0 45.5.9a.2.2 0 0 0-.2.1 40.8 40.8 0 0 0-1.8 3.7 54.1 54.1 0 0 0-16.3 0A37.5 37.5 0 0 0 25.4 1a.2.2 0 0 0-.2-.1A58.4 58.4 0 0 0 10.6 4.9a.2.2 0 0 0-.1.1C1.6 17.7-.9 30.2.3 42.6v.1a59 59 0 0 0 17.9 9.1.2.2 0 0 0 .2-.1 42.1 42.1 0 0 0 3.6-5.9.2.2 0 0 0-.1-.3 38.8 38.8 0 0 1-5.5-2.6.2.2 0 0 1 0-.4l1.1-.8a.2.2 0 0 1 .2 0c11.5 5.3 24 5.3 35.4 0a.2.2 0 0 1 .2 0l1.1.8a.2.2 0 0 1 0 .4 36 36 0 0 1-5.5 2.6.2.2 0 0 0-.1.3c1 2 2.2 4 3.6 5.9a.2.2 0 0 0 .2.1 58.7 58.7 0 0 0 18-9.1v-.1c1.5-15.3-2.5-28.6-10.6-40.4a.2.2 0 0 0-.1-.2ZM23.7 35c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.5 3.3 6.4 7.2 0 4-2.8 7.2-6.4 7.2Zm23.7 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.5 3.3 6.4 7.2 0 4-2.8 7.2-6.4 7.2Z"/></svg>
+            CONNEXION DISCORD
+        </button>
+    </div>
+</section>
+
+<!-- PAY -->
+<section id="pay" class="section">
+    <div class="modal-box">
+        <h2 style="text-align:center;letter-spacing:5px;margin-bottom:28px;font-size:0.95rem">RESERVATION</h2>
+        <div style="text-align:center;margin-bottom:24px;padding:16px;border:1px solid rgba(197,160,89,0.14)">
+            <div style="font-size:0.58rem;color:var(--gold);letter-spacing:3px" id="pay-car-name">&#8212;</div>
+            <div style="font-size:1.9rem;font-weight:900;margin-top:5px"><span id="pay-price">&#8212;</span><span style="color:rgba(255,255,255,0.16)">&#8364;</span> <small style="font-size:0.72rem;color:#2a2a2a">/ JOUR</small></div>
+        </div>
+        <input type="text" placeholder="Nom complet">
+        <input type="text" placeholder="Numero de carte">
+        <div style="display:flex;gap:10px">
+            <input type="text" placeholder="MM/YY">
+            <input type="text" placeholder="CVC">
+        </div>
+        <button class="btn-action" onclick="finish()" style="width:100%">VALIDER LA TRANSACTION</button>
+    </div>
+</section>
+
+<script>
+/* ── FLEET DATA ─────────────────────────────────────────────── */
+var cars = [
+    {
+        name: "AUDI RS3",
+        model: "SEDAN / QUATTRO",
+        symbol: "RS3",
+        price: 220,
+        img: "https://pngimg.com/uploads/audi/audi_PNG1735.png"
+    },
+    {
+        name: "BMW M3",
+        model: "COMPETITION / XDRIVE",
+        symbol: "M3",
+        price: 350,
+        img: "https://pngimg.com/uploads/bmw/bmw_PNG99561.png"
+    },
+    {
+        name: "PORSCHE 911",
+        model: "CARRERA S / 992",
+        symbol: "911",
+        price: 480,
+        img: "https://www.pngplay.com/wp-content/uploads/13/Porsche-911-PNG-Clipart-Background.png"
+    },
+    {
+        name: "PORSCHE 911",
+        model: "GT3 / TRACK EDITION",
+        symbol: "GT3",
+        price: 650,
+        img: "https://pngimg.com/uploads/porsche/porsche_PNG102847.png"
+    },
+    {
+        name: "MERCEDES G63",
+        model: "AMG / NIGHT PACKAGE",
+        symbol: "G63",
+        price: 550,
+        img: "https://pngimg.com/uploads/mercedes/mercedes_PNG80138.png"
+    },
+    {
+        name: "LAMBORGHINI",
+        model: "HURACAN EVO / SPYDER",
+        symbol: "EVO",
+        price: 950,
+        img: "https://pngimg.com/uploads/lamborghini/lamborghini_PNG102907.png"
+    },
+    {
+        name: "FERRARI F8",
+        model: "TRIBUTO / SPIDER",
+        symbol: "F8",
+        price: 1100,
+        img: "https://pngimg.com/uploads/ferrari/ferrari_PNG102818.png"
+    },
+    {
+        name: "LAMBORGHINI",
+        model: "URUS PERFORMANTE",
+        symbol: "URUS",
+        price: 1300,
+        img: "https://pngimg.com/uploads/lamborghini/lamborghini_PNG10682.png"
+    },
+    {
+        name: "FERRARI SF90",
+        model: "STRADALE / SPIDER",
+        symbol: "SF90",
+        price: 2200,
+        img: "https://pngimg.com/uploads/ferrari/ferrari_PNG102812.png"
+    },
+    {
+        name: "MCLAREN 720S",
+        model: "SPIDER / PERFORMANCE",
+        symbol: "720S",
+        price: 1450,
+        img: "https://pngimg.com/uploads/Mclaren/Mclaren_PNG74.png"
+    },
+    {
+        name: "ROLLS-ROYCE",
+        model: "GHOST / BLACK BADGE",
+        symbol: "RR",
+        price: 2800,
+        img: "https://pngimg.com/uploads/rolls_royce/rolls_royce_PNG12.png"
+    },
+    {
+        name: "BENTLEY",
+        model: "CONTINENTAL GT / V8",
+        symbol: "GT",
+        price: 1800,
+        img: "https://pngimg.com/uploads/bentley/bentley_PNG102.png"
+    },
+    {
+        name: "ASTON MARTIN",
+        model: "DB11 / V12 AMR",
+        symbol: "DB11",
+        price: 1600,
+        img: "https://pngimg.com/uploads/aston_martin/aston_martin_PNG95.png"
+    },
+    {
+        name: "MERCEDES",
+        model: "AMG GT63 / 4MATIC+",
+        symbol: "GT63",
+        price: 750,
+        img: "https://pngimg.com/uploads/mercedes/mercedes_PNG102923.png"
+    }    ,
+    {
+        name: "VW POLO",
+        model: "GTI / 2.0 TSI",
+        symbol: "POLO",
+        price: 95,
+        img: "https://pngimg.com/uploads/volkswagen/volkswagen_PNG1793.png"
+    },
+    {
+        name: "MERCEDES C63",
+        model: "AMG / S COUPE",
+        symbol: "C63",
+        price: 420,
+        img: "https://pngimg.com/uploads/mercedes/mercedes_PNG1904.png"
+    },
+    {
+        name: "MERCEDES AMG",
+        model: "GT / ROADSTER",
+        symbol: "AMG",
+        price: 680,
+        img: "https://pngimg.com/uploads/mercedes/mercedes_PNG80195.png"
+    }
+];
+
+/* ── STATE ──────────────────────────────────────────────────── */
+var fleetIdx = 0;
+var isChanging = false;
+
+/* ── FLEET ──────────────────────────────────────────────────── */
+function buildDots() {
+    var el = document.getElementById('progress-dots');
+    el.innerHTML = '';
+    cars.forEach(function(_, i) {
+        var d = document.createElement('div');
+        d.className = 'dot' + (i === fleetIdx ? ' active' : '');
+        d.onclick = (function(idx){ return function(){ goTo(idx); }; })(i);
+        el.appendChild(d);
+    });
+}
+
+function updateDots() {
+    document.querySelectorAll('.dot').forEach(function(d, i){
+        d.className = 'dot' + (i === fleetIdx ? ' active' : '');
+    });
+}
+
+function updateCar() {
+    var c = cars[fleetIdx];
+    var container = document.getElementById('carImgContainer');
+    container.classList.add('changing');
+    setTimeout(function() {
+        document.getElementById('car-img').src = c.img;
+        document.getElementById('car-img').alt = c.name;
+        document.getElementById('bg-symbol').innerText = c.symbol;
+        document.getElementById('car-name').innerText = c.name;
+        document.getElementById('car-model').innerText = c.model;
+        document.getElementById('total-price').innerText = c.price;
+        document.getElementById('car-counter').innerText =
+            String(fleetIdx + 1).padStart(2, '0') + ' / ' + String(cars.length).padStart(2, '0');
+        document.getElementById('pay-car-name').innerText = c.name + ' ' + c.model;
+        document.getElementById('pay-price').innerText = c.price;
+        container.classList.remove('changing');
+        isChanging = false;
+    }, 350);
+}
+
+function slide(dir) {
+    if (isChanging) return;
+    isChanging = true;
+    fleetIdx = (fleetIdx + dir + cars.length) % cars.length;
+    updateDots();
+    updateCar();
+}
+
+function goTo(idx) {
+    if (isChanging || idx === fleetIdx) return;
+    isChanging = true;
+    fleetIdx = idx;
+    updateDots();
+    updateCar();
+}
+
+/* ── NAVIGATION ─────────────────────────────────────────────── */
+function showSection(id) {
+    document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+    document.getElementById(id).classList.add('active');
+}
+
+document.addEventListener('keydown', function(e) {
+    if (document.getElementById('fleet').classList.contains('active')) {
+        if (e.key === 'ArrowLeft') slide(-1);
+        if (e.key === 'ArrowRight') slide(1);
+    }
+});
+
+function grantAccess(displayName) {
+    document.getElementById('pay-btn').style.display = 'block';
+    var link = document.getElementById('login-link');
+    link.innerText = displayName + ' — CONNECTE';
+    link.style.color = 'var(--gold)';
+    showSection('fleet');
+}
+
+function finish() {
+    alert('Transaction securisee terminee. Bienvenue dans la famille NEVERMIND.');
+    showSection('home');
+}
+
+/* ── GOOGLE OAUTH2 ──────────────────────────────────────────── */
+var GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID'; // Remplacer par votre Client ID Google
+
+function googleLogin() {
+    var redirectUri = window.location.href.split('?')[0].split('#')[0];
+    var params = new URLSearchParams({
+        client_id: GOOGLE_CLIENT_ID,
+        redirect_uri: redirectUri,
+        response_type: 'token',
+        scope: 'openid email profile',
+        include_granted_scopes: 'true'
+    });
+    window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
+}
+
+function handleGoogleCallback() {
+    var hash = window.location.hash.substring(1);
+    if (!hash) return;
+    var params = new URLSearchParams(hash);
+    var token = params.get('access_token');
+    if (!token) return;
+
+    history.replaceState(null, '', window.location.pathname);
+
+    fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+        headers: { Authorization: 'Bearer ' + token }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(user) {
+        var displayName = (user.name || user.email).toUpperCase();
+        var avatarUrl = user.picture || '';
+        var email = user.email || '';
+
+        if (avatarUrl) document.getElementById('google-avatar').src = avatarUrl;
+        document.getElementById('google-username').innerText = displayName;
+        document.getElementById('google-email').innerText = email;
+        document.getElementById('google-user-block').style.display = 'flex';
+        document.getElementById('google-btn').style.display = 'none';
+
+        setTimeout(function() { grantAccess(displayName); }, 1000);
+    })
+    .catch(function(err) { console.error('Google API error:', err); });
+}
+
+/* ── DISCORD OAUTH2 ─────────────────────────────────────────── */
+var DISCORD_CLIENT_ID = '1499527371852877984';
+
+function discordLogin() {
+    // L'URI de redirection doit etre enregistree dans le portail Discord Developer
+    var redirectUri = window.location.href.split('?')[0].split('#')[0];
+    var params = new URLSearchParams({
+        client_id: DISCORD_CLIENT_ID,
+        redirect_uri: redirectUri,
+        response_type: 'token',
+        scope: 'identify'
+    });
+    window.location.href = 'https://discord.com/api/oauth2/authorize?' + params.toString();
+}
+
+function handleDiscordCallback() {
+    var hash = window.location.hash.substring(1);
+    if (!hash) return;
+    var params = new URLSearchParams(hash);
+    var token = params.get('access_token');
+    if (!token) return;
+
+    // Nettoyer l'URL
+    history.replaceState(null, '', window.location.pathname);
+
+    // Recuperer le profil Discord
+    fetch('https://discord.com/api/users/@me', {
+        headers: { Authorization: 'Bearer ' + token }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(user) {
+        var avatarUrl = user.avatar
+            ? 'https://cdn.discordapp.com/avatars/' + user.id + '/' + user.avatar + '.png?size=64'
+            : 'https://cdn.discordapp.com/embed/avatars/0.png';
+        var displayName = (user.global_name || user.username).toUpperCase();
+        var tag = (user.discriminator && user.discriminator !== '0')
+            ? user.username + '#' + user.discriminator
+            : '@' + user.username;
+
+        document.getElementById('discord-avatar').src = avatarUrl;
+        document.getElementById('discord-username').innerText = displayName;
+        document.getElementById('discord-tag').innerText = tag;
+        document.getElementById('discord-user-block').style.display = 'flex';
+        document.getElementById('discord-btn').style.display = 'none';
+
+        setTimeout(function() { grantAccess(displayName); }, 1000);
+    })
+    .catch(function(err) { console.error('Discord API error:', err); });
+}
+
+/* ── INIT ────────────────────────────────────────────────────── */
+window.onload = function() {
+    buildDots();
+    updateCar();
+    handleGoogleCallback();
+    handleDiscordCallback();
+    setTimeout(function() { document.getElementById('intro').style.display = 'none'; }, 5000);
+};
+</script>
+</body>
+</html>
