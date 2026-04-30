@@ -117,7 +117,7 @@
 
 <div class="intro-overlay" id="intro">
     <h1 class="intro-logo">NEVERMIND <span>RENT</span></h1>
-    <img src="https://www.pngplay.com/wp-content/uploads/13/Porsche-911-PNG-Clipart-Background.png" class="park-animation" alt="">
+    <img src="https://pngimg.com/uploads/porsche/porsche_PNG102845.png" class="park-animation" alt="">
 </div>
 
 <header>
@@ -331,6 +331,7 @@
             <svg width="20" height="15" viewBox="0 0 71 55" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M60.1 4.9A58.6 58.6 0 0 0 45.5.9a.2.2 0 0 0-.2.1 40.8 40.8 0 0 0-1.8 3.7 54.1 54.1 0 0 0-16.3 0A37.5 37.5 0 0 0 25.4 1a.2.2 0 0 0-.2-.1A58.4 58.4 0 0 0 10.6 4.9a.2.2 0 0 0-.1.1C1.6 17.7-.9 30.2.3 42.6v.1a59 59 0 0 0 17.9 9.1.2.2 0 0 0 .2-.1 42.1 42.1 0 0 0 3.6-5.9.2.2 0 0 0-.1-.3 38.8 38.8 0 0 1-5.5-2.6.2.2 0 0 1 0-.4l1.1-.8a.2.2 0 0 1 .2 0c11.5 5.3 24 5.3 35.4 0a.2.2 0 0 1 .2 0l1.1.8a.2.2 0 0 1 0 .4 36 36 0 0 1-5.5 2.6.2.2 0 0 0-.1.3c1 2 2.2 4 3.6 5.9a.2.2 0 0 0 .2.1 58.7 58.7 0 0 0 18-9.1v-.1c1.5-15.3-2.5-28.6-10.6-40.4a.2.2 0 0 0-.1-.2ZM23.7 35c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.5 3.3 6.4 7.2 0 4-2.8 7.2-6.4 7.2Zm23.7 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.5 3.3 6.4 7.2 0 4-2.8 7.2-6.4 7.2Z"/></svg>
             CONNEXION DISCORD
         </button>
+        <button id="logout-btn" onclick="logout()" style="display:none;margin-top:12px;width:100%;padding:12px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.35);font-family:'Montserrat',sans-serif;font-size:0.62rem;letter-spacing:2px;cursor:pointer;text-transform:uppercase;transition:0.3s" onmouseover="this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">SE DECONNECTER</button>
     </div>
 </section>
 
@@ -586,7 +587,28 @@ function googleLogin() {
     window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
 }
 
+function applyGoogleSession(session) {
+    if (session.avatar) document.getElementById('google-avatar').src = session.avatar;
+    document.getElementById('google-username').innerText = session.displayName;
+    document.getElementById('google-email').innerText = session.email;
+    document.getElementById('google-user-block').style.display = 'flex';
+    document.getElementById('google-btn').style.display = 'none';
+    document.getElementById('logout-btn').style.display = 'block';
+    grantAccess(session.displayName);
+}
+
 function handleGoogleCallback() {
+    // 1. Session sauvegardee ?
+    try {
+        var saved = localStorage.getItem('nevermind_google_session');
+        if (saved) {
+            var session = JSON.parse(saved);
+            applyGoogleSession(session);
+            return;
+        }
+    } catch(e) {}
+
+    // 2. Retour OAuth
     var hash = window.location.hash.substring(1);
     if (!hash) return;
     var params = new URLSearchParams(hash);
@@ -600,17 +622,13 @@ function handleGoogleCallback() {
     })
     .then(function(r) { return r.json(); })
     .then(function(user) {
-        var displayName = (user.name || user.email).toUpperCase();
-        var avatarUrl = user.picture || '';
-        var email = user.email || '';
-
-        if (avatarUrl) document.getElementById('google-avatar').src = avatarUrl;
-        document.getElementById('google-username').innerText = displayName;
-        document.getElementById('google-email').innerText = email;
-        document.getElementById('google-user-block').style.display = 'flex';
-        document.getElementById('google-btn').style.display = 'none';
-
-        setTimeout(function() { grantAccess(displayName); }, 1000);
+        var session = {
+            displayName: (user.name || user.email).toUpperCase(),
+            avatar: user.picture || '',
+            email: user.email || ''
+        };
+        try { localStorage.setItem('nevermind_google_session', JSON.stringify(session)); } catch(e) {}
+        applyGoogleSession(session);
     })
     .catch(function(err) { console.error('Google API error:', err); });
 }
@@ -644,18 +662,37 @@ function discordLogin() {
     window.location.href = 'https://discord.com/api/oauth2/authorize?' + params.toString();
 }
 
+function applyDiscordSession(session) {
+    document.getElementById('discord-avatar').src = session.avatar;
+    document.getElementById('discord-username').innerText = session.displayName;
+    document.getElementById('discord-tag').innerText = session.tag;
+    document.getElementById('discord-user-block').style.display = 'flex';
+    document.getElementById('discord-btn').style.display = 'none';
+    document.getElementById('logout-btn').style.display = 'block';
+    grantAccess(session.displayName);
+}
+
 function handleDiscordCallback() {
+    // 1. Verifier si une session est deja sauvegardee (reload apres connexion)
+    try {
+        var saved = localStorage.getItem('nevermind_discord_session');
+        if (saved) {
+            var session = JSON.parse(saved);
+            applyDiscordSession(session);
+            return;
+        }
+    } catch(e) {}
+
+    // 2. Sinon lire le token depuis le hash de l'URL (retour OAuth)
     var hash = window.location.hash.substring(1);
     if (!hash) return;
     var params = new URLSearchParams(hash);
     var token = params.get('access_token');
     if (!token) return;
 
-    // Nettoyer l'URL immediatement pour eviter la re-lecture au reload
+    // Nettoyer l'URL immediatement
     history.replaceState(null, '', window.location.pathname);
 
-    // Discord renvoie un token opaque (pas JWT) — on utilise un proxy CORS public
-    // pour appeler /users/@me sans blocage navigateur
     var proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://discord.com/api/users/@me');
 
     fetch(proxyUrl, {
@@ -674,27 +711,33 @@ function handleDiscordCallback() {
             ? user.username + '#' + user.discriminator
             : '@' + user.username;
 
-        document.getElementById('discord-avatar').src = avatarUrl;
-        document.getElementById('discord-username').innerText = displayName;
-        document.getElementById('discord-tag').innerText = tag;
-        document.getElementById('discord-user-block').style.display = 'flex';
-        document.getElementById('discord-btn').style.display = 'none';
+        // Sauvegarder la session pour les prochains reloads
+        try {
+            localStorage.setItem('nevermind_discord_session', JSON.stringify({
+                displayName: displayName,
+                tag: tag,
+                avatar: avatarUrl
+            }));
+        } catch(e) {}
 
-        setTimeout(function() { grantAccess(displayName); }, 1000);
+        applyDiscordSession({ displayName: displayName, tag: tag, avatar: avatarUrl });
     })
     .catch(function(err) {
         console.error('Discord API error:', err);
-        // Fallback : afficher quand meme un acces avec nom generique
         var displayName = 'UTILISATEUR DISCORD';
-        document.getElementById('discord-username').innerText = displayName;
-        document.getElementById('discord-tag').innerText = 'Connecte via Discord';
-        document.getElementById('discord-user-block').style.display = 'flex';
-        document.getElementById('discord-btn').style.display = 'none';
-        setTimeout(function() { grantAccess(displayName); }, 1000);
+        var session = { displayName: displayName, tag: 'Connecte via Discord', avatar: 'https://cdn.discordapp.com/embed/avatars/0.png' };
+        try { localStorage.setItem('nevermind_discord_session', JSON.stringify(session)); } catch(e) {}
+        applyDiscordSession(session);
     });
 }
 
-/* ── INIT ────────────────────────────────────────────────────── */
+function logout() {
+    try {
+        localStorage.removeItem('nevermind_discord_session');
+        localStorage.removeItem('nevermind_google_session');
+    } catch(e) {}
+    window.location.reload();
+}
 window.onload = function() {
     buildDots();
     updateCar();
